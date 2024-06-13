@@ -1,0 +1,68 @@
+Generate an output table using UiPath to identify employees from different departments who have
+the
+same highest salary.
+The goal is to list employees alongside their departments and salaries in the output table
+
+MariaDB [(none)]> use college;
+Database changed
+
+MariaDB [college]> create table department(departm
+ent_ID int, name varchar(50),primary key(departmen
+t_id));
+Query OK, 0 rows affected (0.020 sec)
+
+MariaDB [college]> create table employee(departmen
+t_ID int, name varchar(50), salary int, foreign ke
+y(department_ID) references department(department_
+ID));
+Query OK, 0 rows affected (0.039 sec)
+
+MariaDB [college]> insert into department(departme
+nt_ID,name) values(1,'IT'),(2,'Sales');
+Query OK, 2 rows affected (0.075 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+
+MariaDB [college]> insert into employee(name,salar
+y,department_ID)
+    -> values
+    -> ('herry',70000,1),
+    -> ('jim',90000,1),
+    -> ('jeo',80000,2),
+    -> ('Sam',60000,2),
+    -> ('maz',90000,1);
+Query OK, 5 rows affected (0.004 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+MariaDB [college]> select * from department;
++---------------+-------+
+| department_ID | name  |
++---------------+-------+
+|             1 | IT    |
+|             2 | Sales |
++---------------+-------+
+2 rows in set (0.004 sec)
+
+MariaDB [college]> select * from employee;
++---------------+-------+--------+
+| department_ID | name  | salary |
++---------------+-------+--------+
+|             1 | herry |  70000 |
+|             1 | jim   |  90000 |
+|             2 | jeo   |  80000 |
+|             2 | Sam   |  60000 |
+|             1 | maz   |  90000 |
++---------------+-------+--------+
+5 rows in set (0.000 sec)
+
+MariaDB [college]> select d.name as Department, e.
+name as Employee, e.salary from department d right
+ join employee e on d.department_ID=e.department_ID where e.salary in (select max(e.salary)from empl
+oyee e group by d.name, e.department_ID);
++------------+----------+--------+
+| Department | Employee | salary |
++------------+----------+--------+
+| IT         | jim      |  90000 |
+| Sales      | jeo      |  80000 |
+| IT         | maz      |  90000 |
++------------+----------+--------+
+3 rows in set (0.012 sec)
